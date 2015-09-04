@@ -1,0 +1,72 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+def tomcatDir = "../tomcat"
+def webappsDir = "$tomcatDir/webapps"
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+//Project dependencies
+dependencies {
+    compile 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'org.springframework:spring-webmvc:4.0.6.RELEASE'
+    compile 'org.springframework.security:spring-security-web:4.0.1.RELEASE'
+    compile 'org.springframework.security:spring-security-config:4.0.1.RELEASE'
+    compile 'jstl:jstl:1.2'
+    compile(group: 'commons-lang', name: 'commons-lang', version: '2.6')
+    compile(group: 'commons-io', name: 'commons-io', version: '1.4')
+    compile(group: 'commons-collections', name: 'commons-collections', version: '3.2.1')
+    compile(group: 'com.google.guava', name: 'guava', version: '16.0.1')
+
+    compile 'javax.servlet:javax.servlet-api:3.0.1'
+    compile 'com.sun.el:el-ri:1.0'
+    compile 'com.sun.faces:jsf-api:2.1.13'
+    compile 'com.sun.faces:jsf-impl:2.1.13'
+}
+
+task cleanWebapps(type: Delete) {
+    delete "$webappsDir/jsf-template"
+}
+
+task deploy(type: Copy, dependsOn: ['assemble', 'cleanWebapps']) {
+    from file('build/libs')
+    include '*.war'
+    into "$webappsDir"
+}
+
+task stop() << {
+    def binDir = "${tomcatDir}/bin"
+    project.logger.info ">>> stopping $tomcatDir"
+    ant.exec(osfamily: 'windows', dir: "${binDir}", executable: 'cmd.exe', spawn: true) {
+        env(key: 'NOPAUSE', value: true)
+        if (project.hasProperty('studioJavaHome')) {
+            env(key: 'JAVA_HOME', value: project.studioJavaHome)
+        }
+        arg(line: '/c start callAndExit.bat shutdown.bat')
+    }
+    ant.exec(osfamily: 'unix', dir: "${binDir}", executable: '/bin/sh') {
+        arg(line: 'shutdown.sh')
+    }
+}
+
+task start() << {
+    def binDir = "${tomcatDir}/bin"
+    project.logger.info ">>> stopping $tomcatDir"
+    ant.exec(osfamily: 'windows', dir: "${binDir}", executable: 'cmd.exe', spawn: true) {
+        env(key: 'NOPAUSE', value: true)
+        if (project.hasProperty('studioJavaHome')) {
+            env(key: 'JAVA_HOME', value: project.studioJavaHome)
+        }
+        arg(line: '/c start callAndExit.bat startup.bat')
+    }
+    ant.exec(osfamily: 'unix', dir: "${binDir}", executable: '/bin/sh') {
+        arg(line: 'startup.sh')
+    }
+}
