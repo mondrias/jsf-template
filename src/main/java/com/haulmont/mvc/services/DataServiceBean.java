@@ -1,6 +1,9 @@
 package com.haulmont.mvc.services;
 
 import com.haulmont.mvc.pojo.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +13,14 @@ import java.util.List;
  * @version $Id$
  */
 public class DataServiceBean {
+    protected SessionFactory sessionFactory;
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
     public List<User> getUsers() {
-        return Arrays.asList(new User("Name1"), new User("Name2"), new User("Name3"), new User("Name4"));
+        Session session = sessionFactory.openSession();
+        return session.createQuery("select u from User u").list();
     }
 }

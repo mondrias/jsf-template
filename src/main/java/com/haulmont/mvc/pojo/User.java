@@ -1,21 +1,22 @@
 package com.haulmont.mvc.pojo;
 
+import javax.persistence.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author degtyarjov
  * @version $Id$
  */
+@Entity(name = "User")
+@Table(name = "USERS")
 public class User {
-    private static AtomicInteger atomicInteger = new AtomicInteger();
-
-    protected String name;
+    @Id
+    @GeneratedValue
+    @Column(name = "ID")
     protected Integer id;
 
-    public User(String name) {
-        this.name = name;
-        this.id = atomicInteger.incrementAndGet();
-    }
+    @Column(name = "NAME")
+    protected String name;
 
     public Integer getId() {
         return id;
