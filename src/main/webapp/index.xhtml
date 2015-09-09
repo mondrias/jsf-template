@@ -57,5 +57,13 @@
                 </tr>
             </ui:repeat>
         </table>
+
+        <h1>Info file</h1>
+        <p>${dataService.getInfo()}</p>
+
+        <h1>Resource files</h1>
+        <ui:repeat value="${dataService.getResourcesList()}" var="name">
+            <p>${name}</p>
+        </ui:repeat>
  	</h:body>
 </html>
